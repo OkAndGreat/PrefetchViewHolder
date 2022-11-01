@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val prefetchAdapter = PrefetchAdapter()
+        val prefetchAdapter = TestAdapter(R.layout.item_recycler_view)
         prefetchAdapter.setData(data)
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(baseContext, LinearLayoutManager.VERTICAL, false)

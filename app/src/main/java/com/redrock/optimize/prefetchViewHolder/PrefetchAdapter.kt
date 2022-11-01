@@ -1,49 +1,40 @@
 package com.redrock.optimize.prefetchViewHolder
 
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import com.redrock.optimize.R
 
 /**
  * Author by OkAndGreat
  * Date on 2022/11/1 16:19.
- *
  */
-class PrefetchAdapter : RecyclerView.Adapter<PrefetchViewHolder>() {
+abstract class PrefetchAdapter<vh : PrefetchViewHolder, vp : PrefetchViewPool<vh>>(@LayoutRes open val layoutId: Int) :
+    RecyclerView.Adapter<vh>() {
 
-    private val prefetchViewPool = PrefetchViewPool()
-    private var list: List<String> = emptyList()
+    private val prefetchViewPool = getExactlyPrefetchViewPool()
 
     init {
-        val prefetchItemMap = hashMapOf(
-            R.layout.item_recycler_view to 4
-        )
-        prefetchViewPool.setPrefetchedViewTypeList(prefetchItemMap)
+        //       PrefetchViewPool.addPrefetchedViewType(R.layout.item_recycler_view to 4)
+
+        prefetchViewPool.addPrefetchedViewType(R.layout.item_recycler_view to 4)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PrefetchViewHolder {
-        return prefetchViewPool.getPrefetchedItemViewHolder(parent, R.layout.item_recycler_view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): vh {
+        return prefetchViewPool.getPrefetchedItemViewHolder(parent, layoutId)
     }
 
-    override fun onBindViewHolder(holder: PrefetchViewHolder, position: Int) {
-        holder.onBind(list[position])
-    }
-
-    override fun getItemCount(): Int = list.size
-
-    fun setData(list: List<String>){
-        this.list = list
-        notifyDataSetChanged()
-    }
 
     //Since we need the parent view to which the items will get attached, we will start prefetching on the call of onAttachedToRecyclerView() method.
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        prefetchViewPool.prefetchItemViewHolder(recyclerView)
+        prefetchViewPool.prefetchItemViewHolder(recyclerView, layoutId)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         prefetchViewPool.detachedFromRecyclerView()
     }
+
+    abstract fun getExactlyPrefetchViewPool(): vp
 }
